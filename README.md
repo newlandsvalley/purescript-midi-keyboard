@@ -11,6 +11,7 @@ An experiment to build a MIDI keyboard using the new web-midi interface from pur
 From the current directory
 
    $ bower install
-   $ ./build.sh
    
+   $ ./build.sh
+
 The code is built as midi-keyboard.js in the dist directory. This is runnable if you open the corresponding index.html.  Host this on a web server and navigate to dist/index.html.  You need a MIDI keyboard or other device to use it.

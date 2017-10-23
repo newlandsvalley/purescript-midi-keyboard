@@ -32,7 +32,7 @@ main :: Eff
         Unit
 main = do
 
-  _ <- initApp
+  webMidiConnected <- initApp
 
   deviceChannel <- createDeviceChannel
   eventChannel <- createEventChannel
@@ -41,9 +41,9 @@ main = do
     eventSubscription = subscribe eventChannel
     deviceSignal = map DeviceConnection deviceSubscription
     eventSignal = map MidiMessage eventSubscription
-    
+
   app <- start
-    { initialState: initialState
+    { initialState: initialState webMidiConnected
     , view
     , foldp
     , inputs: [ fontSignal, deviceSignal, eventSignal ]

@@ -3,29 +3,30 @@ module App where
 
 import Data.Midi as Midi
 import Audio.SoundFont (AUDIO, MidiNote, Instrument, loadRemoteSoundFonts, playNote)
-import CSS.TextAlign (textAlign, leftTextAlign, center)
-import Control.Bind ((=<<))
 import Control.Monad.Eff.Class (liftEff)
-import Data.Array (length, fromFoldable, slice, singleton)
+import Data.Array (singleton)
 import Data.Foldable (traverse_)
 import Data.Int (toNumber)
-import Data.List (List(..), null)
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Midi.Instrument (InstrumentName(..), gleitzmanName, instruments, read)
+import Data.List (null)
+import Data.Map (Map, insert, delete, empty, values)
+import Data.Maybe (Maybe(..))
+import Data.Midi.Instrument (InstrumentName(..))
 import Data.Midi.WebMidi (WEBMIDI, Device)
 import Network.HTTP.Affjax (AJAX)
-import Prelude (bind, const, discard, map, max, min, pure, show, ($), (#), (<>), (+), (-), (*), (/), (==), (<<<))
+import Prelude (bind, discard, pure, ($), (<>), (*), (/), (==), (<<<))
 import Pux (EffModel, noEffects)
 import Pux.DOM.Events (onClick, onChange, onInput, targetValue)
 import Pux.DOM.HTML (HTML, child)
 import Pux.DOM.HTML.Attributes (style)
-import Text.Smolder.HTML (button, div, h1, input, label, p, span, textarea, ul, li)
-import Text.Smolder.Markup (attribute, text, (#!), (!))
-import Text.Smolder.Markup (Attribute)
+import Text.Smolder.HTML (div, h1, input, p, span, ul, li)
+import Text.Smolder.Markup (Attribute, text, (#!), (!))
+import CSS.TextAlign (textAlign, leftTextAlign, center)
 
 -- | volumes in MIDI range from 0 to 127
 volumeCeiling :: Int
 volumeCeiling = 127
+
+type Devices = Map String Device
 
 data Event
     = NoOp
@@ -35,14 +36,16 @@ data Event
     | MidiMessage Midi.TimedEvent    -- a MIDI event message
 
 type State = {
-   inputDevices :: Array Device
+   webMidiConnected :: Boolean
+ , inputDevices :: Devices
  , instruments :: Array Instrument
  , maxVolume :: Int                      -- the maximum volume allowed by the volume control
 }
 
-initialState :: State
-initialState = {
-  inputDevices : []
+initialState :: Boolean -> State
+initialState connected = {
+  webMidiConnected : connected
+, inputDevices : empty
 , instruments : []
 , maxVolume : (volumeCeiling / 2)  -- start at half volume ceiling
 }
@@ -63,9 +66,13 @@ foldp (FontsLoaded instruments) state =
   noEffects $ state { instruments = instruments }
 foldp (DeviceConnection device) state =
   let
-    newState = state { inputDevices = singleton device}
+    newDevices =
+      if device.connected then
+        insert device.id device state.inputDevices
+      else
+        delete device.id state.inputDevices
   in
-    noEffects newState
+    noEffects $ state { inputDevices = newDevices }
 foldp (MidiMessage timedEvent) state =
   playMidiEvent timedEvent state
 
@@ -117,7 +124,6 @@ recogniseControlMessage mevent state =
     _ ->
       state
 
-
 showDevice :: Device -> HTML Event
 showDevice device =
   do
@@ -126,26 +132,25 @@ showDevice device =
 -- | view the connected MIDI input devices
 viewInputDevices :: State -> HTML Event
 viewInputDevices state =
-  -- case state.webMidiConnection of
-  --  Connected ->
-      case state.inputDevices of
-        [] ->
-          do
-            p $ text $ "You need to connect a MIDI device"
-        _ ->
-          do
-            traverse_ showDevice state.inputDevices
-    -- _ ->
-    --  do
-    --    p $ text ""
-
+  if state.webMidiConnected then
+    let
+      devices = values state.inputDevices
+    in
+      if null devices then
+        do
+          p $ text $ "You need to connect a MIDI device"
+      else
+        do
+          traverse_ showDevice devices
+  else
+    do
+      p $ text ""
 
 view :: State -> HTML Event
 view state =
   div $ do
     h1 ! centreStyle $ text "Midi Keyboard"
     viewInputDevices state
-
 
 centreStyle :: Attribute
 centreStyle =
