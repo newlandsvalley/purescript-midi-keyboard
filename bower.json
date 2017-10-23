@@ -1,0 +1,17 @@
+{
+  "name": "purescript-midi-keyboard",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-soundfonts": "https://github.com/newlandsvalley/purescript-soundfonts.git#1.1.1",
+    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#1.1.0",
+    "purescript-pux": "^12.0.0"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^3.0.0"
+  }
+}
