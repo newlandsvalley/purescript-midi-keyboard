@@ -2,18 +2,19 @@ module App where
 
 
 import Data.Midi as Midi
+import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
 import Audio.SoundFont (AUDIO, MidiNote, Instrument, loadRemoteSoundFonts, playNote)
 import Control.Monad.Eff.Class (liftEff)
-import Data.Array (singleton)
+import Data.Array (null, singleton) as A
 import Data.Foldable (traverse_)
 import Data.Int (toNumber)
 import Data.List (null)
+import Data.Tuple (fst)
 import Data.Map (Map, insert, delete, empty, values)
 import Data.Maybe (Maybe(..))
-import Data.Midi.Instrument (InstrumentName(..))
 import Data.Midi.WebMidi (WEBMIDI, Device)
 import Network.HTTP.Affjax (AJAX)
-import Prelude (bind, discard, pure, ($), (<>), (*), (/), (==), (<<<))
+import Prelude (bind, discard, pure, ($), (<>), (*), (/), (<<<))
 import Pux (EffModel, noEffects)
 import Pux.DOM.Events (onClick, onChange, onInput, targetValue)
 import Pux.DOM.HTML (HTML, child)
@@ -57,7 +58,7 @@ foldp (RequestLoadFont instrumentName) state =
     effects =
       [
         do  -- request the fonts are loaded
-          instruments <- loadRemoteSoundFonts $ singleton instrumentName
+          instruments <- loadRemoteSoundFonts $ A.singleton instrumentName
           pure $ Just (FontsLoaded instruments)
       ]
   in
@@ -124,8 +125,20 @@ recogniseControlMessage mevent state =
     _ ->
       state
 
-showDevice :: Device -> HTML Event
-showDevice device =
+viewInstrument :: Instrument -> HTML Event
+viewInstrument instrument =
+  do
+    (p <<< text)  ((gleitzmanName <<< fst) instrument <> " loaded")
+
+viewInstruments :: State -> HTML Event
+viewInstruments state =
+  if A.null state.instruments then
+    p $ text "wait for instrument to load"
+  else
+    traverse_ viewInstrument state.instruments
+
+viewDevice :: Device -> HTML Event
+viewDevice device =
   do
     p $ text $ device.name <> " " <> device.id
 
@@ -141,7 +154,7 @@ viewInputDevices state =
           p $ text $ "You need to connect a MIDI device"
       else
         do
-          traverse_ showDevice devices
+          traverse_ viewDevice devices
   else
     do
       p $ text ""
@@ -150,6 +163,7 @@ view :: State -> HTML Event
 view state =
   div $ do
     h1 ! centreStyle $ text "Midi Keyboard"
+    viewInstruments state
     viewInputDevices state
 
 centreStyle :: Attribute
