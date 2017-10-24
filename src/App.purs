@@ -5,23 +5,29 @@ import Data.Midi as Midi
 import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
 import Audio.SoundFont (AUDIO, MidiNote, Instrument, loadRemoteSoundFonts, playNote)
 import Control.Monad.Eff.Class (liftEff)
-import Data.Array (null, singleton) as A
+import Control.Monad.Aff (Aff)
+import Data.Array (head, null, singleton) as A
 import Data.Foldable (traverse_)
 import Data.Int (toNumber)
 import Data.List (null)
 import Data.Tuple (fst)
-import Data.Map (Map, insert, delete, empty, values)
-import Data.Maybe (Maybe(..))
+import Data.Map (Map, insert, delete, empty, isEmpty, values)
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Midi.WebMidi (WEBMIDI, Device)
+import Data.Midi.Instrument (instruments, read) as MI
 import Network.HTTP.Affjax (AJAX)
-import Prelude (bind, discard, pure, ($), (<>), (*), (/), (<<<))
+import Prelude (bind, discard, map, not, pure, ($), (<>), (*), (/), (<<<), (&&), (==))
 import Pux (EffModel, noEffects)
-import Pux.DOM.Events (onClick, onChange, onInput, targetValue)
-import Pux.DOM.HTML (HTML, child)
+import Pux.DOM.Events (onChange, targetValue)
+import Pux.DOM.HTML (HTML)
 import Pux.DOM.HTML.Attributes (style)
-import Text.Smolder.HTML (div, h1, input, p, span, ul, li)
+import Text.Smolder.HTML (div, h1, p, select, option)
 import Text.Smolder.Markup (Attribute, text, (#!), (!))
-import CSS.TextAlign (textAlign, leftTextAlign, center)
+import Text.Smolder.HTML.Attributes (selected)
+import CSS.Geometry (margin)
+import CSS.TextAlign (center, textAlign)
+import CSS.Size (px, em)
+import CSS.Font (fontSize)
 
 -- | volumes in MIDI range from 0 to 127
 volumeCeiling :: Int
@@ -34,7 +40,8 @@ data Event
     | RequestLoadFont InstrumentName
     | FontsLoaded (Array Instrument)
     | DeviceConnection Device
-    | MidiMessage Midi.TimedEvent    -- a MIDI event message
+    | ChangeInstrument (Maybe InstrumentName)  -- change the MIDI instrument
+    | MidiMessage Midi.TimedEvent              -- a MIDI event message
 
 type State = {
    webMidiConnected :: Boolean
@@ -74,8 +81,22 @@ foldp (DeviceConnection device) state =
         delete device.id state.inputDevices
   in
     noEffects $ state { inputDevices = newDevices }
+foldp (ChangeInstrument mInstrumentName ) state =
+  case mInstrumentName of
+    Just instrumentName ->
+      { state: state { instruments = [] }
+      , effects: [loadFont instrumentName]
+      }
+    _ ->
+      noEffects state
 foldp (MidiMessage timedEvent) state =
   playMidiEvent timedEvent state
+
+loadFont :: ∀ eff. InstrumentName ->  Aff (ajax :: AJAX, au :: AUDIO | eff) (Maybe Event)
+loadFont instrumentName =
+  do  -- request the fonts are loaded
+    instruments <- loadRemoteSoundFonts $ A.singleton instrumentName
+    pure $ Just (FontsLoaded instruments)
 
 -- | interpret MIDI event messages
 -- | at the moment we only respond to:
@@ -159,14 +180,52 @@ viewInputDevices state =
     do
       p $ text ""
 
+-- | display the instrument menu (if we have a connected device)
+instrumentMenu :: State -> HTML Event
+instrumentMenu state =
+  if (state.webMidiConnected && (not isEmpty state.inputDevices)) then
+    let
+      currentInstrument =
+        fromMaybe AcousticGrandPiano $ map (fst) $ A.head state.instruments
+    in
+      div do
+        text "select an instrument"
+        select ! selectionStyle #! onChange (\e -> ChangeInstrument (MI.read $ targetValue e) )
+          $ (instrumentOptions $ gleitzmanName currentInstrument)
+    else
+      do
+        p $ text ""
+
+-- | build the drop down list of instruments using the gleitz soundfont instrument name
+instrumentOptions :: String -> HTML Event
+instrumentOptions target =
+  let
+    f instrument =
+        -- option [ selectedInstrument name instrument ]
+        if (target == instrument) then
+          option ! selected "selected" $ text instrument
+        else
+          option $ text instrument
+  in
+    -- this will eventually be renamed as MI.instrumentNames
+    traverse_ f MI.instruments
+
+
 view :: State -> HTML Event
 view state =
   div $ do
     h1 ! centreStyle $ text "Midi Keyboard"
     viewInstruments state
     viewInputDevices state
+    instrumentMenu state
 
 centreStyle :: Attribute
 centreStyle =
   style do
     textAlign center
+
+selectionStyle :: Attribute
+selectionStyle  =
+  style do
+    margin (px 20.0) (px 0.0) (px 0.0) (px 40.0)
+    fontSize (em 1.0)

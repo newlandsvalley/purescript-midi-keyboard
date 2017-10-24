@@ -3,7 +3,9 @@ purescript-midi-keyboard
 
 work in progress
 
-An experiment to build a MIDI keyboard using the new web-midi interface from purescript-midi that uses signals and the new purescript-soundfont library to play the notes that are selected on the keyboard.
+A playable MIDI keyboard using the new web-midi interface from purescript-midi that uses signals and the new purescript-soundfont library to respond to key presses.
+
+It still doesn't work reliably if a keyboard is already connected on startup.
 
 
 ## to build
