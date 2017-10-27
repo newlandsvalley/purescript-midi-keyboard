@@ -29,6 +29,7 @@ import CSS.TextAlign (center, textAlign)
 import CSS.Size (px, em)
 import CSS.Font (fontSize)
 
+
 -- | volumes in MIDI range from 0 to 127
 volumeCeiling :: Int
 volumeCeiling = 127
@@ -103,38 +104,41 @@ loadFont instrumentName =
 -- |    NoteOn
 -- |    Control Volume
 -- |
+-- | This multiplexes all MIDI channels to the single font we have loaded
+-- | i.e. if you have various devices connected then they all play though
+-- | the currently loaded instrument
+-- |
 -- | but obviously this is easily extended to other messages
 -- | Also, volume control discriminate neither which
 -- | device is being played nor which MIDI channel is in operation
 -- | (i.e. you're probably OK if you just attach a single device)
 playMidiEvent :: ∀ eff. Midi.TimedEvent -> State -> EffModel State Event (au :: AUDIO, wm :: WEBMIDI | eff )
 playMidiEvent (Midi.TimedEvent te) state =
-    let
-      maybeEvent = te.event
-    in
-      case maybeEvent of
-        Just (Midi.NoteOn channel pitch velocity) ->
-          { state : state
-          , effects :
-            [ do
-                let
-                  -- respond to the current volume control setting
-                  volumeScale =
-                    toNumber state.maxVolume / toNumber volumeCeiling
-                  -- and this is what's left of the note
-                  gain =
-                    toNumber velocity * volumeScale / toNumber volumeCeiling
-                  midiNote :: MidiNote
-                  midiNote = { channel : channel, id: pitch, timeOffset: 0.0, duration : 1.0, gain : gain }
-                _ <- liftEff $ playNote state.instruments midiNote
-                pure $ Just NoOp
-            ]
-          }
-        _ ->
-          let
-            newState = recogniseControlMessage maybeEvent state
-          in
-            noEffects newState
+  case te.event of
+    Just (Midi.NoteOn channel pitch velocity) ->
+      { state : state
+      , effects :
+        [ do
+            let
+              -- respond to the current volume control setting
+              volumeScale =
+                toNumber state.maxVolume / toNumber volumeCeiling
+              -- and this is what's left of the note
+              gain =
+                toNumber velocity * volumeScale / toNumber volumeCeiling
+              midiNote :: MidiNote
+              -- use the channel 0 font for all NoteOn messahes
+              -- midiNote = { channel : channel, id: pitch, timeOffset: 0.0, duration : 1.0, gain : gain }
+              midiNote = { channel : 0, id: pitch, timeOffset: 0.0, duration : 1.0, gain : gain }
+            _ <- liftEff $ playNote state.instruments midiNote
+            pure $ Just NoOp
+        ]
+      }
+    _ ->
+      let
+        newState = recogniseControlMessage te.event state
+      in
+        noEffects newState
 
 -- | recognise and act on a control message and save to the model state
 -- |    At the moment, we just recognise volume changes
@@ -145,6 +149,13 @@ recogniseControlMessage mevent state =
       state { maxVolume = amount }
     _ ->
       state
+
+viewWebMidiSupport :: State -> HTML Event
+viewWebMidiSupport state =
+  if state.webMidiConnected then
+    text ""
+  else
+    text "web-midi is not supported by your browser"
 
 viewInstrument :: Instrument -> HTML Event
 viewInstrument instrument =
@@ -189,7 +200,7 @@ instrumentMenu state =
         fromMaybe AcousticGrandPiano $ map (fst) $ A.head state.instruments
     in
       div do
-        text "select an instrument"
+        text "change the instrument"
         select ! selectionStyle #! onChange (\e -> ChangeInstrument (MI.read $ targetValue e) )
           $ (instrumentOptions $ gleitzmanName currentInstrument)
     else
@@ -215,6 +226,7 @@ view :: State -> HTML Event
 view state =
   div $ do
     h1 ! centreStyle $ text "Midi Keyboard"
+    viewWebMidiSupport state
     viewInstruments state
     viewInputDevices state
     instrumentMenu state

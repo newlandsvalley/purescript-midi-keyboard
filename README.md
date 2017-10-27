@@ -1,11 +1,9 @@
 purescript-midi-keyboard
 ========================
 
-work in progress
+Play music through the browser by attaching a MIDI keyboard or other device.  This program loads up a grand piano soundfont and then detects MIDI devices as they connect or disconnect and also events as keys are pressed.  It responds only to NoteON messages (which it plays through the soundfont instrument) and volume change messages. If you attach more than one device, they all play through the same instrument.  You can change the selected instrument at any time.
 
-A playable MIDI keyboard using the new web-midi interface from purescript-midi that uses signals and the new purescript-soundfont library to respond to key presses.
-
-It still doesn't work reliably if a keyboard is already connected on startup.
+Note that you will need to use a browser that supports web-midi (at the time of writing, Chrome or Opera).
 
 
 ## to build
