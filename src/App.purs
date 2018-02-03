@@ -14,7 +14,7 @@ import Data.Tuple (fst)
 import Data.Map (Map, insert, delete, empty, isEmpty, values)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Midi.WebMidi (WEBMIDI, Device)
-import Data.Midi.Instrument (instruments, read) as MI
+import Data.Midi.Instrument (gleitzmanNames, read) as MI
 import Network.HTTP.Affjax (AJAX)
 import Prelude (bind, discard, map, not, pure, ($), (<>), (*), (/), (<<<), (&&), (==))
 import Pux (EffModel, noEffects)
@@ -218,8 +218,7 @@ instrumentOptions target =
         else
           option $ text instrument
   in
-    -- this will eventually be renamed as MI.instrumentNames
-    traverse_ f MI.instruments
+    traverse_ f MI.gleitzmanNames
 
 
 view :: State -> HTML Event
