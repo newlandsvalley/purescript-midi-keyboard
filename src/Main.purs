@@ -1,34 +1,24 @@
 module Main where
 
 import App (Event(..), foldp, initialState, view)
-import Control.Monad.Eff.Exception (EXCEPTION)
-import Network.HTTP.Affjax (AJAX)
-import Audio.SoundFont (AUDIO)
-import Control.Monad.Eff (Eff)
+import Effect (Effect)
 import Prelude (Unit, bind, map, ($))
 import Pux (start)
 import Pux.Renderer.React (renderToDOM)
 import Data.Midi.Instrument (InstrumentName(..))
-import Data.Midi.WebMidi (WEBMIDI, webMidiConnect, createDeviceChannel, createEventChannel)
+import Data.Midi.WebMidi (webMidiConnect, createDeviceChannel, createEventChannel)
 import Signal (Signal, constant)
-import Signal.Channel (CHANNEL, subscribe)
+import Signal.Channel (subscribe)
 
 
 fontSignal :: Signal Event
 fontSignal = constant $ RequestLoadFont AcousticGrandPiano
 
-initApp :: ∀ eff. (Eff (ajax :: AJAX, au:: AUDIO, wm :: WEBMIDI | eff) Boolean)
+initApp :: Effect Boolean
 initApp = webMidiConnect
 
 -- | Start and render the app
-main :: Eff
-        ( channel :: CHANNEL
-        , exception :: EXCEPTION
-        , ajax :: AJAX
-        , wm :: WEBMIDI
-        , au :: AUDIO
-        )
-        Unit
+main :: Effect Unit
 main = do
 
   webMidiConnected <- initApp

@@ -3,9 +3,9 @@ module App where
 
 import Data.Midi as Midi
 import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
-import Audio.SoundFont (AUDIO, MidiNote, Instrument, loadRemoteSoundFonts, playNote)
-import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Aff (Aff)
+import Audio.SoundFont (MidiNote, Instrument, loadRemoteSoundFonts, playNote)
+import Effect.Class (liftEffect)
+import Effect.Aff (Aff)
 import Data.Array (head, null, singleton) as A
 import Data.Foldable (traverse_)
 import Data.Int (toNumber)
@@ -13,10 +13,9 @@ import Data.List (null)
 import Data.Tuple (fst)
 import Data.Map (Map, insert, delete, empty, isEmpty, values)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Midi.WebMidi (WEBMIDI, Device)
+import Data.Midi.WebMidi (Device)
 import Data.Midi.Instrument (gleitzmanNames, read) as MI
-import Network.HTTP.Affjax (AJAX)
-import Prelude (bind, discard, map, not, pure, ($), (<>), (*), (/), (<<<), (&&), (==))
+import Prelude (bind, discard, map, not, pure, show, ($), (<>), (*), (/), (<<<), (&&), (==))
 import Pux (EffModel, noEffects)
 import Pux.DOM.Events (onChange, targetValue)
 import Pux.DOM.HTML (HTML)
@@ -28,7 +27,6 @@ import CSS.Geometry (margin)
 import CSS.TextAlign (center, textAlign)
 import CSS.Size (px, em)
 import CSS.Font (fontSize)
-
 
 -- | volumes in MIDI range from 0 to 127
 volumeCeiling :: Int
@@ -49,6 +47,7 @@ type State = {
  , inputDevices :: Devices
  , instruments :: Array Instrument
  , maxVolume :: Int                      -- the maximum volume allowed by the volume control
+ , lastPitch :: Maybe Int
 }
 
 initialState :: Boolean -> State
@@ -57,9 +56,10 @@ initialState connected = {
 , inputDevices : empty
 , instruments : []
 , maxVolume : (volumeCeiling / 2)  -- start at half volume ceiling
+, lastPitch : Nothing
 }
 
-foldp :: Event -> State -> EffModel State Event (ajax :: AJAX, wm :: WEBMIDI, au :: AUDIO)
+foldp :: Event -> State -> EffModel State Event
 foldp NoOp state =  noEffects $ state
 foldp (RequestLoadFont instrumentName) state =
   let
@@ -93,7 +93,7 @@ foldp (ChangeInstrument mInstrumentName ) state =
 foldp (MidiMessage timedEvent) state =
   playMidiEvent timedEvent state
 
-loadFont :: ∀ eff. InstrumentName ->  Aff (ajax :: AJAX, au :: AUDIO | eff) (Maybe Event)
+loadFont :: InstrumentName -> Aff (Maybe Event)
 loadFont instrumentName =
   do  -- request the fonts are loaded
     instruments <- loadRemoteSoundFonts $ A.singleton instrumentName
@@ -112,7 +112,7 @@ loadFont instrumentName =
 -- | Also, volume control discriminate neither which
 -- | device is being played nor which MIDI channel is in operation
 -- | (i.e. you're probably OK if you just attach a single device)
-playMidiEvent :: ∀ eff. Midi.TimedEvent -> State -> EffModel State Event (au :: AUDIO, wm :: WEBMIDI | eff )
+playMidiEvent :: Midi.TimedEvent -> State -> EffModel State Event
 playMidiEvent (Midi.TimedEvent te) state =
   case te.event of
     Just (Midi.NoteOn channel pitch velocity) ->
@@ -130,7 +130,7 @@ playMidiEvent (Midi.TimedEvent te) state =
               -- use the channel 0 font for all NoteOn messahes
               -- midiNote = { channel : channel, id: pitch, timeOffset: 0.0, duration : 1.0, gain : gain }
               midiNote = { channel : 0, id: pitch, timeOffset: 0.0, duration : 1.0, gain : gain }
-            _ <- liftEff $ playNote state.instruments midiNote
+            _ <- liftEffect $ playNote state.instruments midiNote
             pure $ Just NoOp
         ]
       }
@@ -220,6 +220,13 @@ instrumentOptions target =
   in
     traverse_ f MI.gleitzmanNames
 
+debugPitch :: State -> HTML Event
+debugPitch state =
+  case state.lastPitch of
+    Nothing ->
+      p $ text ""
+    Just pitch ->
+      p $ text (show pitch)
 
 view :: State -> HTML Event
 view state =
@@ -229,6 +236,7 @@ view state =
     viewInstruments state
     viewInputDevices state
     instrumentMenu state
+    debugPitch state
 
 centreStyle :: Attribute
 centreStyle =

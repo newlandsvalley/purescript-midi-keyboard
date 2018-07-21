@@ -5,6 +5,8 @@ Play music through the browser by attaching a MIDI keyboard or other device.  Th
 
 Note that you will need to use a browser that supports web-midi (at the time of writing, Chrome or Opera).
 
+This version for PureScript 12.0, Pux 13.0
+
 
 ## to build
 
