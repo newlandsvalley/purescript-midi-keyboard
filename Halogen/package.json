@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "pulp build --to dist/midi-keyboard.js",
+    "watch": "pulp -w build --to dist/midi-keyboard.js"
+  },
+  "devDependencies": {
+    "pulp": "^12.3.0",
+    "purescript": "^0.12",
+    "purescript-psa": "^0.5.1",
+    "webpack": "^3.6.0"
+  }
+}

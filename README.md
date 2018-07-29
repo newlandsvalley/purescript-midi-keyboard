@@ -9,7 +9,6 @@ Note that you will need to use a browser that supports web-midi (at the time of 
 
 This version for PureScript 12.0, Pux 13.0
 
-
 ## to build
 
 From the current directory
@@ -18,3 +17,7 @@ From the current directory
      $ ./build.sh
 
 The code is built as midi-keyboard.js in the dist directory. Host dist/index.html on a web server and navigate to it to try it out.  You need a MIDI keyboard or other device to use it and also a browser that supports web-midi.
+
+## halogen version
+
+The Halogen subdirectory contains an equivalent MIDI keyboard but one which uses Halogen rather than Pux.

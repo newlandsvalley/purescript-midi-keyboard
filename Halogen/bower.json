@@ -1,0 +1,19 @@
+{
+  "name": "halogen-midi-keyboard",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-console": "^4.1.0",
+    "purescript-halogen": "https://github.com/slamdata/purescript-halogen.git#master",
+    "purescript-aff-coroutines": "^7.0.0",
+    "purescript-soundfonts": "^3.0.0",
+    "purescript-midi": "^2.0.0"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^4.0.0"
+  }
+}
