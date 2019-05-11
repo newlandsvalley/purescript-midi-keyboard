@@ -18,12 +18,8 @@ type State = {
  , maxVolume :: Int
 }
 
-data Query a =
-    Init a
-  | HandleChangeInstrument (Maybe InstrumentName) a
-  | HandleDeviceConnection Device a
-  | HandleMidiEvent Midi.TimedEvent a
-
--- there are no components in the container so ChildSlots is empty
-type ChildSlots =
-  ()
+data Action =
+    Init
+  | HandleChangeInstrument (Maybe InstrumentName)
+  | HandleDeviceConnection Device
+  | HandleMidiEvent Midi.TimedEvent

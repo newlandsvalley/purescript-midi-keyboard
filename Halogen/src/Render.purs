@@ -2,7 +2,7 @@ module Render where
 
 -- Rendering functions
 import Prelude (($), (<<<), (<>), (==), map)
-import State (ChildSlots, State, Query(..))
+import State (State, Action(..))
 import Halogen.HTML.Core (HTML)
 import Halogen as H
 import Halogen.HTML as HH
@@ -11,10 +11,10 @@ import Halogen.HTML.Events as HE
 import Data.Array (cons, head, null)
 import Data.Map (Map, isEmpty, values)
 import Data.Tuple (fst)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.List (toUnfoldable)
 import Audio.SoundFont (Instrument)
-import Data.Midi.Instrument (InstrumentName(..), gleitzmanName, instrumentNames, read)
+import Data.Midi.Instrument (InstrumentName(..), gleitzmanName, instrumentNames, readGleitzman)
 import Data.Midi.WebMidi (Device)
 
 renderConnection :: ∀ a b.
@@ -80,7 +80,7 @@ renderDevice device =
     [ HP.class_ (H.ClassName "msListItemLabel") ]
     [ HH.text $ device.name <> " " <> device.id ]
 
-renderInstrumentMenu :: ∀ m. Array Instrument -> H.ComponentHTML Query ChildSlots m
+renderInstrumentMenu :: ∀ m. Array Instrument ->  H.ComponentHTML Action () m
 renderInstrumentMenu instruments =
   let
     currentInstrument =
@@ -95,7 +95,8 @@ renderInstrumentMenu instruments =
           [ HP.class_ $ H.ClassName "selection"
           , HP.id_  "instrument-menu"
           , HP.value (gleitzmanName currentInstrument)
-          , HE.onValueChange  (HE.input (\i -> HandleChangeInstrument $ read i))
+          , HE.onValueChange
+              (Just <<<  HandleChangeInstrument <<< readGleitzman)
           ]
           (cons
             (HH.option [ ] [ HH.text (gleitzmanName currentInstrument)])

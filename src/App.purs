@@ -14,7 +14,7 @@ import Data.Tuple (fst)
 import Data.Map (Map, insert, delete, empty, isEmpty, values)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Midi.WebMidi (Device)
-import Data.Midi.Instrument (gleitzmanNames, read) as MI
+import Data.Midi.Instrument (gleitzmanNames, readGleitzman) as MI
 import Prelude (bind, discard, map, not, pure, show, ($), (<>), (*), (/), (<<<), (&&), (==))
 import Pux (EffModel, noEffects)
 import Pux.DOM.Events (onChange, targetValue)
@@ -201,7 +201,8 @@ instrumentMenu state =
     in
       div do
         text "change the instrument"
-        select ! selectionStyle #! onChange (\e -> ChangeInstrument (MI.read $ targetValue e) )
+        select ! selectionStyle #! onChange
+            (\e -> ChangeInstrument (MI.readGleitzman $ targetValue e) )
           $ (instrumentOptions $ gleitzmanName currentInstrument)
     else
       do

@@ -4,6 +4,10 @@
 /output/
 /generated-docs/
 /dist/midi-keyboard.js
+/Halogen/output/
+/Halogen/bower_components/
+/Halogen/.pulp-cache/
+/Halogen/dist/midi-keyboard.js
 /.psc*
 /.purs*
 /.psa*

@@ -6,9 +6,9 @@
     "bower_components",
     "output"
   ],
-  "dependencies": {
-    "purescript-soundfonts": "^3.0.0",
-    "purescript-midi": "^2.0.0",
+  "dependencies": {    
+    "purescript-soundfonts": "https://github.com/newlandsvalley/purescript-soundfonts.git#master",
+    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#master",
     "purescript-pux": "^13.0.0"
   },
   "devDependencies": {

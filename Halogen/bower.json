@@ -8,10 +8,10 @@
   ],
   "dependencies": {
     "purescript-console": "^4.1.0",
-    "purescript-halogen": "https://github.com/slamdata/purescript-halogen.git#master",
+    "purescript-halogen": "https://github.com/slamdata/purescript-halogen.git#5.0.0-rc.1",
     "purescript-aff-coroutines": "^7.0.0",
-    "purescript-soundfonts": "^3.0.0",
-    "purescript-midi": "^2.0.0"
+    "purescript-soundfonts": "https://github.com/newlandsvalley/purescript-soundfonts.git#master",
+    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#master"
   },
   "devDependencies": {
     "purescript-psci-support": "^4.0.0"
