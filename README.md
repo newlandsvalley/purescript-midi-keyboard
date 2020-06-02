@@ -7,7 +7,7 @@ If you have such a device, then you can try it [here](http://www.tradtunedb.org.
 
 Note that you will need to use a browser that supports web-midi (at the time of writing, Chrome or Opera).
 
-This version for PureScript 12.0, Pux 13.0
+This version for PureScript 12.0 and Pux 13.0.  It seems as if Pux is no longer regularly maintained. If you need to use the latest PureScript compiler, you should instead use the Halogen version (see below).
 
 ## to build
 
@@ -18,6 +18,6 @@ From the current directory
 
 The code is built as midi-keyboard.js in the dist directory. Host dist/index.html on a web server and navigate to it to try it out.  You need a MIDI keyboard or other device to use it and also a browser that supports web-midi.
 
-## halogen version
+## Halogen version
 
-The Halogen subdirectory contains an equivalent MIDI keyboard but one which uses Halogen rather than Pux.
+The Halogen subdirectory contains an equivalent MIDI keyboard but one which uses Halogen 5.0.0 rather than Pux together with purs 0.13.8.

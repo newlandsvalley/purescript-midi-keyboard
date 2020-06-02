@@ -1,7 +1,7 @@
 halogen-midi-keyboard
 =====================
 
-This is a version of purescript-midi-keyboard but one which uses Halogen rather than Pux. Halogen is undergoing a significant re-write at the moment and so we use the (as yet unreleased) github master version.  This project illustrates how it is possible to adapt [Signals](https://pursuit.purescript.org/packages/purescript-signal/10.1.0) for use as Halogen Events.
+This is a version of purescript-midi-keyboard but one which uses Halogen 5.0.0 rather than Pux. This project illustrates how it is possible to adapt [Signals](https://pursuit.purescript.org/packages/purescript-signal/10.1.0) for use as Halogen Events.
 
 
 ## to build
