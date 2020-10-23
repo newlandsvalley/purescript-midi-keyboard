@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "pulp build --no-check-main --to dist/midi-keyboard.js"
+    "build": "pulp build --to dist/midi-keyboard.js"
   },
   "devDependencies": {
     "pulp": "^14.0.0",

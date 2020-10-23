@@ -109,50 +109,7 @@ component =
        H.put newState
        pure unit
 
-{-}
-  eval :: Query ~> H.HalogenM State Query () Void Aff
-  eval (Init next) = do
-    -- connect to web-MIDI
-    webMidiConnected <- H.liftEffect webMidiConnect
-    -- load the initial instrument font
-    instruments <- H.liftAff $ loadRemoteSoundFonts [AcousticGrandPiano]
-    _ <- H.modify (\st -> st { webMidiConnected = webMidiConnected
-                             , instruments = instruments} )
-    -- subscribe to device connections and disconnections
-    deviceSource <- H.liftEffect deviceEventSource
-    _ <- H.subscribe deviceSource
-    -- subscribe to MIDI event messages from these devices
-    midiSource <- H.liftEffect midiEventSource
-    _ <- H.subscribe midiSource
-    pure next
-  eval (HandleChangeInstrument mInstrumentName next) =
-    case mInstrumentName of
-      Just instrumentName ->
-        do
-          -- wipe out current instruments to invoke a 'wait' message in the HTMP
-          _ <- H.modify (\st -> st { instruments = [] })
-          -- load the requested instrument
-          instruments <- H.liftAff $ loadRemoteSoundFonts [instrumentName]
-          _ <- H.modify (\st -> st { instruments = instruments} )
-          pure next
-      _ ->
-        pure next
-  eval (HandleDeviceConnection device next) = do
-    state <- H.get
-    let
-      newDevices =
-        if device.connected then
-          insert device.id device state.inputDevices
-        else
-          delete device.id state.inputDevices
-    _ <- H.modify (\st -> st { inputDevices = newDevices } )
-    pure next
-  eval (HandleMidiEvent timedEvent next) = do
-    state <- H.get
-    newState <- playMidiEvent timedEvent state
-    H.put newState
-    pure next
--}
+
 
   -- | interpret MIDI event messages
   -- | at the moment we only respond to:
