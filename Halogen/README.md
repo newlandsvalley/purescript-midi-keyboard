@@ -8,7 +8,12 @@ This is a version of purescript-midi-keyboard but one which uses Halogen 5.0.0 r
 
 From the current directory
 
-     $ bower install
+     $ spago install
      $ npm run build
+
+or
+
+     $ bower install
+     $ npm run pulp-build
 
 The code is built as midi-keyboard.js in the dist directory. Host dist/index.html on a web server and navigate to it to try it out.  You need a MIDI keyboard or other device to use it and also a browser that supports web-midi.

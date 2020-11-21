@@ -11,10 +11,10 @@ Two versions are provided.  The first is for Halogen 5 using ps 13.8. and the ot
 
 cd to the Halogen directory
 
-     $ bower install
-     $ ./build.sh
+     $ spago install
+     $ npm run build
 
-The code is built as midi-keyboard.js in the dist directory. Host dist/index.html on a web server and navigate to it to try it out.  You need a MIDI keyboard or other device to use it and also a browser that supports web-midi.
+The code is built as midi-keyboard.js in the Halogen/dist directory. Host Halogen/dist/index.html on a web server and navigate to it to try it out.  You need a MIDI keyboard or other device to use it and also a browser that supports web-midi.
 
 ## Pux version
 

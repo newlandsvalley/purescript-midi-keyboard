@@ -1,7 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "build": "pulp build --to dist/midi-keyboard.js"
+    "pulp-build": "pulp build --to dist/midi-keyboard.js",
+    "build": "spago bundle-app --main Main --to dist/midi-keyboard.js"
   },
   "devDependencies": {
     "pulp": "^14.0.0",
