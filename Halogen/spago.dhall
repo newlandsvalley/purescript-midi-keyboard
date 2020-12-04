@@ -7,5 +7,5 @@ You can edit this file as you like.
   [ "aff-coroutines", "console", "effect", "halogen", "psci-support",
     "midi", "soundfonts" ]
 , packages = ./packages.dhall
-, sources = [ "src/**/*.purs", "test/**/*.purs" ]
+, sources = [ "src/**/*.purs" ]
 }

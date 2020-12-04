@@ -106,38 +106,6 @@ in  upstream
 -}
 
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.13.8-20201021/packages.dhall sha256:55ebdbda1bd6ede4d5307fbc1ef19988c80271b4225d833c8d6fb9b6fb1aa6d8
+      https://github.com/purescript/package-sets/releases/download/psc-0.13.8-20201204/packages.dhall sha256:89f184cea1ca40630ea34fb68972589b8eedf4809275686aef85f86abaa2145f
 
 in  upstream
-    with midi =
-    { dependencies =
-       [ "prelude"
-       , "lists"
-       , "string-parsers"
-       , "integers"
-       , "unicode"
-       , "generics-rep"
-       , "signal"
-       ]
-    , repo =
-       "https://github.com/newlandsvalley/purescript-midi.git"
-    , version =
-        "v2.3.2"
-    }
-    with soundfonts =
-    { dependencies =
-       [ "affjax"
-       , "argonaut-core"
-       , "b64"
-       , "console"
-       , "effect"
-       , "http-methods"
-       , "midi"
-       , "parallel"
-       , "prelude"
-    ]
-    , repo =
-       "https://github.com/newlandsvalley/purescript-soundfonts.git"
-    , version =
-        "master"
-    }
