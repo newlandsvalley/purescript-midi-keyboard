@@ -3,7 +3,7 @@ purescript-midi-keyboard
 
 Play music through the browser by attaching a MIDI keyboard or other device.  This program loads up a grand piano soundfont and then detects MIDI devices as they connect or disconnect and also events as keys are pressed.  It responds only to NoteON messages (which it plays through the soundfont instrument) and volume change messages. If you attach more than one device, they all play through the same instrument.  You can change the selected instrument at any time.
 
-If you have such a device, and if you are using an old version of a browser, then you can try it [here](http://www.tradtunedb.org.uk:8601/).  (This server no longer works with modern browsers such as Chrome or Mozilla because they now only support web-MIDI on 'untrusted' servers through an HTTPS connection.) The midi-keyboard will, however, run quite happily under localhost.
+If you have such a device then you can try it [here](https://www.tradtunedb.org.uk:8601/).  
 
 Two versions are provided.  The first is for Halogen 5 using ps 13.8. and the other is an older, deprecated version for Pux and ps 12.0.
 
